@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 public enum Token_Class
@@ -67,7 +68,6 @@ namespace JASON_Compiler
             Operators.Add("/", Token_Class.DivideOp);
 
 
-
         }
 
     public void StartScanning(string SourceCode)
@@ -104,37 +104,45 @@ namespace JASON_Compiler
         }
         void FindTokenClass(string Lex)
         {
-            Token_Class TC;
+            //Token_Class TC;
             Token Tok = new Token();
             Tok.lex = Lex;
             //Is it a reserved word?
-            
+
 
             //Is it an identifier?
-            
+            if (isIdentifier(Lex))
+                Tok.token_type = Token_Class.Idenifier;
 
             //Is it a Constant?
-
+            if (isConstant(Lex))
+                Tok.token_type = Token_Class.Constant;
             //Is it an operator?
-
+            if (IsOperator(Lex))
+                Tok.token_type = Operators[Lex];
             //Is it an undefined?
+            Tokens.Add(Tok);
         }
 
-    
+
 
         bool isIdentifier(string lex)
         {
-            bool isValid=true;
             // Check if the lex is an identifier or not.
-            
-            return isValid;
+            Regex RId = new Regex(@"^[a-zA-Z][a-zA-Z0-9]*$");
+            return RId.IsMatch(lex);
         }
         bool isConstant(string lex)
         {
-            bool isValid = true;
             // Check if the lex is a constant (Number) or not.
-
-            return isValid;
+            Regex RC = new Regex(@"^(\+|\-)?[0-9]+(\.[0-9]+)?(E (\+|\-)?[0-9]+)?$");
+            return RC.IsMatch(lex);
+        }
+        bool IsOperator(string lex)
+        {
+            // Check if the lex is a constant (Number) or not.
+            Regex RO = new Regex(@"^[\.|\;|\,|\(|\)|\=|\<|\>|\!|\+|\-|\*|\/]$");
+            return RO.IsMatch(lex);
         }
     }
 }
