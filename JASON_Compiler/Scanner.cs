@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 public enum Token_Class
 {
-    Number, String, Reserved_Keywords, Comment_Statement, Identifiers, Function_Call, Term,
+    Unknown, Number, String, Reserved_Keywords, Comment_Statement, Identifiers, Function_Call, Term,
     Arithmatic_Operator, Equation, Expression, Assignment_Statement, Datatype, Declaration_Statement,
     Write_Statement, Read_Statement, Return_Statement, Condition_Operator, Condition, Boolean_Operator,
     Condition_Statement, If_Statement, Else_If_Statement, Else_Statement, Repeat_Statement, FunctionName,
@@ -32,7 +32,7 @@ namespace JASON_Compiler
         public List<Token> Tokens = new List<Token>();
         Dictionary<string, Token_Class> ReservedWords = new Dictionary<string, Token_Class>();
         Dictionary<string, Token_Class> Operators = new Dictionary<string, Token_Class>();
-        //Dictionary<string, Token_Class> Symbols = new Dictionary<string, Token_Class>();
+        Dictionary<string, Token_Class> Symbols = new Dictionary<string, Token_Class>();
         public Scanner()
         {
             ReservedWords.Add("INT", Token_Class.Datatype);
@@ -70,46 +70,187 @@ namespace JASON_Compiler
 
             //Operators.Add(".", Token_Class.Symbol);
 
-            //Symbols.Add(";", Token_Class.Symbol);
-            //Symbols.Add(",", Token_Class.Symbol);
-            //Symbols.Add("(", Token_Class.Symbol);
-            //Symbols.Add(")", Token_Class.Symbol);
-            //Symbols.Add("{", Token_Class.Symbol);
-            //Symbols.Add("}", Token_Class.Symbol);
+            Symbols.Add(";", Token_Class.Symbol);
+            Symbols.Add(",", Token_Class.Symbol);
+            Symbols.Add("(", Token_Class.Symbol);
+            Symbols.Add(")", Token_Class.Symbol);
+            Symbols.Add("{", Token_Class.Symbol);
+            Symbols.Add("}", Token_Class.Symbol);
 
-
+            ///////////////////////////////////////////////////////////////////////////////5 min w hrg3
 
         }
 
         public void StartScanning(string SourceCode)
         {
-            for(int i=0; i<SourceCode.Length;i++)
+            for (int l = 0; l < SourceCode.Length; l++)
             {
-                int j = i;
-                char CurrentChar = SourceCode[i];
-                string CurrentLexeme = CurrentChar.ToString();
+                int r = l;
+                char CurrentChar = SourceCode[r];
+                string CurrentLexeme = "";
 
-                if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n')
+                if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\0')
                     continue;
 
-                if (CurrentChar >= 'A' && CurrentChar <= 'z') //if you read a character
+                if ((CurrentChar >= 'A' && CurrentChar <= 'Z') || (CurrentChar >= 'a' && CurrentChar <= 'z')) //if you read a character
                 {
-                   
+                    while (r < SourceCode.Length && ((CurrentChar >= 'A' && CurrentChar <= 'Z') || (CurrentChar >= 'a' && CurrentChar <= 'z')
+                    || CurrentChar >= '0' && CurrentChar <= '9'))
+                    {
+                        CurrentLexeme += CurrentChar;
+                        r++;
+                        if (r >= SourceCode.Length)
+                            break;
+                        CurrentChar = SourceCode[r];
+                    }
+                    FindTokenClass(CurrentLexeme);
+                    l = r - 1;
                 }
-
-                else if(CurrentChar >= '0' && CurrentChar <= '9')
+                else if (CurrentChar == '/')
                 {
-                   
+                    if (r + 1 < SourceCode.Length && SourceCode[r + 1] == '*')
+                    {
+                        CurrentLexeme += CurrentChar;
+                        r++;
+                        if (r >= SourceCode.Length)
+                            break;
+                        CurrentChar = SourceCode[r];
+                        CurrentLexeme += CurrentChar;
+                        while (r + 1 < SourceCode.Length && !(CurrentChar == '*' && SourceCode[r + 1] == '/'))
+                        {
+                            r++;
+                            if (r >= SourceCode.Length)
+                                break;
+                            CurrentChar = SourceCode[r];
+                            CurrentLexeme += CurrentChar;
+                        }
+                        if (r + 1 < SourceCode.Length)
+                        {
+                            r++;
+                            if (r >= SourceCode.Length)
+                                break;
+                            CurrentChar = SourceCode[r];
+                            CurrentLexeme += CurrentChar;
+                        }
+                    }
+                    FindTokenClass(CurrentLexeme);
+                    l = r;
                 }
-                else if(CurrentChar == '{')
+                else if (CurrentChar == '\"') //if you read a string
                 {
+                    r++;
+                    if (r >= SourceCode.Length)
+                        break;
+                    CurrentChar = SourceCode[r];
+                    while (r < SourceCode.Length && CurrentChar != '\"')
+                    {
+                        CurrentLexeme += CurrentChar;
+                        r++;
+                        if (r >= SourceCode.Length)
+                            break;
+                        CurrentChar = SourceCode[r];
+                    }
+                    FindTokenClass('\"' + CurrentLexeme + '\"');
+                    l = r;
+                }
+                else if (CurrentChar >= '0' && CurrentChar <= '9')
+                {
+                    while (r < SourceCode.Length && CurrentChar >= '0' && CurrentChar <= '9')
+                    {
+                        CurrentLexeme += CurrentChar;
+                        r++;
+                        if (r >= SourceCode.Length)
+                            break;
+                        CurrentChar = SourceCode[r];
+                    }
+                    if (r < SourceCode.Length && CurrentChar == '.')
+                    {
+                        CurrentLexeme += CurrentChar;
+                        r++;
+                        if (r >= SourceCode.Length)
+                            break;
+                        CurrentChar = SourceCode[r];
+                        while (r < SourceCode.Length && CurrentChar >= '0' && CurrentChar <= '9')
+                        {
+                            CurrentLexeme += CurrentChar;
+                            r++;
+                            if (r >= SourceCode.Length)
+                                break;
+                            CurrentChar = SourceCode[r];
+                        }
+                    }
+                    FindTokenClass(CurrentLexeme);
+                    l = r - 1;
+                }
+                else if (Symbols.ContainsKey(CurrentChar.ToString()))
+                {
+                    FindTokenClass(CurrentChar.ToString());
+                }
+                else if (Operators.ContainsKey(CurrentChar.ToString())
+                    || CurrentChar == ':' || CurrentChar == '&' || CurrentChar == '|')
+                {
+                    if (CurrentChar == ':')
+                    {
+                        if (r + 1 < SourceCode.Length && SourceCode[r + 1] == '=')
+                        {
+                            CurrentLexeme += CurrentChar;
+                            r++;
+                            if (r >= SourceCode.Length)
+                                break;
+                            CurrentChar = SourceCode[r];
+                            CurrentLexeme += CurrentChar;
+                        }
+                    }
+                    else if (CurrentChar == '<')
+                    {
+                        if (r + 1 < SourceCode.Length && SourceCode[r + 1] == '>')
+                        {
+                            CurrentLexeme += CurrentChar;
+                            r++;
+                            if (r >= SourceCode.Length)
+                                break;
+                            CurrentChar = SourceCode[r];
+                            CurrentLexeme += CurrentChar;
+                        }
+                    }
+                    else if (CurrentChar == '&')
+                    {
+                        if (r + 1 < SourceCode.Length && SourceCode[r + 1] == '&')
+                        {
+                            CurrentLexeme += CurrentChar;
+                            r++;
+                            if (r >= SourceCode.Length)
+                                break;
+                            CurrentChar = SourceCode[r];
+                            CurrentLexeme += CurrentChar;
+                        }
+                    }
+                    else if (CurrentChar == '|')
+                    {
+                        if (r + 1 < SourceCode.Length && SourceCode[r + 1] == '|')
+                        {
+                            CurrentLexeme += CurrentChar;
+                            r++;
+                            if (r >= SourceCode.Length)
+                                break;
+                            CurrentChar = SourceCode[r];
+                            CurrentLexeme += CurrentChar;
+                        }
+                    }
+                    else
+                    {
+                        CurrentLexeme += CurrentChar;
+                        FindTokenClass(CurrentLexeme);
+                        l = r;
+                    }
                 }
                 else
                 {
-                   
+                    CurrentLexeme += CurrentChar;
+                    FindTokenClass(CurrentLexeme);
                 }
             }
-            
+
             JASON_Compiler.TokenStream = Tokens;
         }
         void FindTokenClass(string Lex)
@@ -122,22 +263,23 @@ namespace JASON_Compiler
                 Tok.token_type = ReservedWords[Lex.ToUpper()];
 
             //Is it an identifier?
-            if (isIdentifier(Lex))
+            else if (isIdentifier(Lex))
                 Tok.token_type = Token_Class.Identifiers;
 
             //Is it a Constant?
-            if (isConstant(Lex))
+            else if (isConstant(Lex))
                 Tok.token_type = Token_Class.Number;
-            if (isString(Lex))
+            else if (isString(Lex))
                 Tok.token_type = Token_Class.String;
             //Is it an operator?
-            if (IsOperator(Lex))
+            else if (IsOperator(Lex))
                 Tok.token_type = Operators[Lex];
-            if (IsSymbol(Lex))
+            else if (IsSymbol(Lex))
                 Tok.token_type = Token_Class.Symbol;
-            if (IsComment(Lex))
+            else if (IsComment(Lex))
                 Tok.token_type = Token_Class.Comment_Statement;
-            
+            else
+                Tok.token_type = Token_Class.Unknown;
             //Is it an undefined?
             Tokens.Add(Tok);
         }
@@ -167,7 +309,7 @@ namespace JASON_Compiler
             // Check if the lex is a constant (Number) or not.
             //return RO.IsMatch(lex);
             //Regex RO = new Regex(@"^\:\=|\=|\<|\>|<>|\+|\-|\*|\/|\&\&|\|\|$");
-            return Operators.ContainsKey(lex.ToUpper());
+            return Operators.ContainsKey(lex);
         }
         bool IsSymbol(string lex)
         {
