@@ -7,20 +7,30 @@ using System.Threading.Tasks;
 
 public enum Token_Class
 {
-    Unknown, Number, String, Reserved_Keywords, Comment_Statement, Identifiers, Function_Call, Term,
-    Arithmatic_Operator, Equation, Expression, Assignment_Statement, Datatype, Declaration_Statement,
-    Write_Statement, Read_Statement, Return_Statement, Condition_Operator, Condition, Boolean_Operator,
-    Condition_Statement, If_Statement, Else_If_Statement, Else_Statement, Repeat_Statement, FunctionName,
-    Parameter, Function_Declaration, Function_Body, Function_Statement, Main_Function, Program, Assignment_Operator,
-    Symbol
+    Unknown, Number, Reserved_Keywords, Comment_Statement, Identifiers, Symbol
 
+    , Int_DataType, Float_DataType, String_DataType
+    , Read_Keyword, Write_Keyword, Repeat_Keyword, Until_Keyword
+    , If_Keyword, Else_If_Keyword, Else_Keyword, Then_Keyword
+    , Return_Keyword, Main_Keyword, End_Keyword
 
+    , Arithmatic_Operator, Assignment_Operator, Condition_Operator, Boolean_Operator
+
+    , Plus_Operator,Minus_Operator,Multiply_Operator,Divide_Operator
+        
+    , Less_Than_Operator,More_Than_Operator,Equal_Operator,Not_Equal_Operator
+        
+    , And_Operator,Or_Operator
+
+    , Semicolon_Symbol,Comma_Symbol,Open_Parenthesis,Close_Parenthesis,Open_Brace,Close_Brace
+
+    , Declaration_Statement, Function_Call, Term, Equation, Expression, FunctionName
+    , Parameter, Function_Declaration, Function_Body, Function_Statement, Program
 
 }
 namespace JASON_Compiler
 {
     
-
     public class Token
     {
        public string lex;
@@ -35,49 +45,43 @@ namespace JASON_Compiler
         Dictionary<string, Token_Class> Symbols = new Dictionary<string, Token_Class>();
         public Scanner()
         {
-            ReservedWords.Add("INT", Token_Class.Datatype);
-            ReservedWords.Add("FLOAT", Token_Class.Datatype);
-            ReservedWords.Add("STRING", Token_Class.Datatype);
 
-            ReservedWords.Add("READ", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("WRITE", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("REPEAT", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("UNTIL", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("IF", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("ELSEIF", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("ELSE", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("THEN", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("RETURN", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("MAIN", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("END", Token_Class.Reserved_Keywords);
-            ReservedWords.Add("ENDL", Token_Class.Reserved_Keywords);
+            ReservedWords.Add("INT", Token_Class.Int_DataType);
+            ReservedWords.Add("FLOAT", Token_Class.Float_DataType);
+            ReservedWords.Add("STRING", Token_Class.String_DataType);
+            ReservedWords.Add("READ", Token_Class.Read_Keyword);
+            ReservedWords.Add("WRITE", Token_Class.Write_Keyword);
+            ReservedWords.Add("REPEAT", Token_Class.Repeat_Keyword);
+            ReservedWords.Add("UNTIL", Token_Class.Until_Keyword);
+            ReservedWords.Add("IF", Token_Class.If_Keyword);
+            ReservedWords.Add("ELSEIF", Token_Class.Else_If_Keyword);
+            ReservedWords.Add("ELSE", Token_Class.Else_Keyword);
+            ReservedWords.Add("THEN", Token_Class.Then_Keyword);
+            ReservedWords.Add("RETURN", Token_Class.Return_Keyword);
+            ReservedWords.Add("MAIN", Token_Class.Main_Keyword);
+            ReservedWords.Add("END", Token_Class.End_Keyword);
 
-            Operators.Add("+", Token_Class.Arithmatic_Operator);
-            Operators.Add("-", Token_Class.Arithmatic_Operator);
-            Operators.Add("*", Token_Class.Arithmatic_Operator);
-            Operators.Add("/", Token_Class.Arithmatic_Operator);
+            Operators.Add("+", Token_Class.Plus_Operator);
+            Operators.Add("-", Token_Class.Minus_Operator);
+            Operators.Add("*", Token_Class.Multiply_Operator);
+            Operators.Add("/", Token_Class.Divide_Operator);
 
             Operators.Add(":=", Token_Class.Assignment_Operator);
 
-            Operators.Add("<", Token_Class.Condition_Operator);
-            Operators.Add(">", Token_Class.Condition_Operator);
-            Operators.Add("=", Token_Class.Condition_Operator);
-            Operators.Add("<>", Token_Class.Condition_Operator);
+            Operators.Add("<", Token_Class.Less_Than_Operator);
+            Operators.Add(">", Token_Class.More_Than_Operator);
+            Operators.Add("=", Token_Class.Equal_Operator);
+            Operators.Add("<>", Token_Class.Not_Equal_Operator);
 
-            Operators.Add("&&", Token_Class.Boolean_Operator);
-            Operators.Add("||", Token_Class.Boolean_Operator);
+            Operators.Add("&&", Token_Class.And_Operator);
+            Operators.Add("||", Token_Class.Or_Operator);
 
-
-            //Operators.Add(".", Token_Class.Symbol);
-
-            Symbols.Add(";", Token_Class.Symbol);
-            Symbols.Add(",", Token_Class.Symbol);
-            Symbols.Add("(", Token_Class.Symbol);
-            Symbols.Add(")", Token_Class.Symbol);
-            Symbols.Add("{", Token_Class.Symbol);
-            Symbols.Add("}", Token_Class.Symbol);
-
-            ///////////////////////////////////////////////////////////////////////////////5 min w hrg3
+            Symbols.Add(";", Token_Class.Semicolon_Symbol);
+            Symbols.Add(",", Token_Class.Comma_Symbol);
+            Symbols.Add("(", Token_Class.Open_Parenthesis);
+            Symbols.Add(")", Token_Class.Close_Parenthesis);
+            Symbols.Add("{", Token_Class.Open_Brace);
+            Symbols.Add("}", Token_Class.Close_Brace);
 
         }
 
@@ -268,12 +272,12 @@ namespace JASON_Compiler
             else if (isConstant(Lex))
                 Tok.token_type = Token_Class.Number;
             else if (isString(Lex))
-                Tok.token_type = Token_Class.String;
+                Tok.token_type = Token_Class.String_DataType;
             //Is it an operator?
             else if (IsOperator(Lex))
                 Tok.token_type = Operators[Lex];
             else if (IsSymbol(Lex))
-                Tok.token_type = Token_Class.Symbol;
+                Tok.token_type = Symbols[Lex];
             else if (IsComment(Lex))
                 Tok.token_type = Token_Class.Comment_Statement;
             else
