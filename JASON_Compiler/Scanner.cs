@@ -17,9 +17,7 @@ public enum Token_Class
     , Arithmatic_Operator, Assignment_Operator, Condition_Operator, Boolean_Operator
 
     , Plus_Operator,Minus_Operator,Multiply_Operator,Divide_Operator
-        
     , Less_Than_Operator,More_Than_Operator,Equal_Operator,Not_Equal_Operator
-        
     , And_Operator,Or_Operator
 
     , Semicolon_Symbol,Comma_Symbol,Open_Parenthesis,Close_Parenthesis,Open_Brace,Close_Brace
@@ -30,7 +28,6 @@ public enum Token_Class
 }
 namespace JASON_Compiler
 {
-    
     public class Token
     {
        public string lex;
@@ -87,129 +84,120 @@ namespace JASON_Compiler
 
         public void StartScanning(string SourceCode)
         {
+            int Line = 1;
             for (int l = 0; l < SourceCode.Length; l++)
             {
                 int r = l;
                 char CurrentChar = SourceCode[r];
                 string CurrentLexeme = "";
-                if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\0')
+
+                if ( isWhiteSpace(CurrentChar) ) { // For Skiping whitespaces and newlines
+                    if (CurrentChar == '\n') Line++;
                     continue;
+                }
 
-                if ((CurrentChar >= 'A' && CurrentChar <= 'Z') || (CurrentChar >= 'a' && CurrentChar <= 'z')) //if you read a character
-                {
-                    while (r < SourceCode.Length && ((CurrentChar >= 'A' && CurrentChar <= 'Z') || (CurrentChar >= 'a' && CurrentChar <= 'z')
-                    || CurrentChar >= '0' && CurrentChar <= '9'))
-                    {
+                if ( isLetter(CurrentChar) ) { // For Identifiers or Reserved Words
+                    while (r < SourceCode.Length && ( isLetter(CurrentChar) || isDigit(CurrentChar) ) ){
                         CurrentLexeme += CurrentChar;
                         r++;
                         if (r >= SourceCode.Length)
                             break;
                         CurrentChar = SourceCode[r];
                     }
-                    if (r < SourceCode.Length && !(CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\0'
-                        || CurrentChar == '\t'|| CurrentChar == ' '))
-                    {
-                        Errors.Error_List.Add("Invalid Character in Identifier: " + CurrentChar);
-                        //l = r; // to ignore the invalid identifier
-                        //continue;
+                    if (r < SourceCode.Length && !(isWhiteSpace(CurrentChar) || isOperator(CurrentChar) || isSymbol(CurrentChar))) { // Error For Invalid Characters
+                        Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Character in Identifier: \" " + CurrentLexeme + " \" that is : \" " + CurrentChar + " \" \n");
                     }
                     FindTokenClass(CurrentLexeme);
-                    l = r;
+                    l = r ;
                 }
-                else if ((CurrentChar == '/') && (r + 1 < SourceCode.Length && SourceCode[r + 1] == '*'))
-                {
 
-                        CurrentLexeme += CurrentChar;
+                else if ((CurrentChar == '/') && (r + 1 < SourceCode.Length && SourceCode[r + 1] == '*')) { // For Comments
+                    CurrentLexeme += "/*";
+                    r += 1;
+                    while (r +1 < SourceCode.Length && !(CurrentChar == '*' && SourceCode[r + 1] == '/')){
                         r++;
-                        if (r >= SourceCode.Length)
-                            break;
+                        if (r >= SourceCode.Length) break;
+
                         CurrentChar = SourceCode[r];
                         CurrentLexeme += CurrentChar;
-                        while (r + 1 < SourceCode.Length && !(CurrentChar == '*' && SourceCode[r + 1] == '/'))
-                        {
-                            r++;
-                            if (r >= SourceCode.Length)
-                                break;
-                            CurrentChar = SourceCode[r];
-                            CurrentLexeme += CurrentChar;
-                        }
-                        if (r + 1 < SourceCode.Length) // "/* ahmed fahmy"
-                    {
-                            r++;
-                            if (r >= SourceCode.Length)
-                                break;
-                            CurrentChar = SourceCode[r];
-                            CurrentLexeme += CurrentChar;
-                        }
-                        else
-                        {
-                            //Error: Comment not closed
-                            Errors.Error_List.Add("Comment not closed: \n" + CurrentLexeme);
-                            break;
-                        }
+                    }
+                    if (r + 1 < SourceCode.Length){
+                        r++;
+                        if (r >= SourceCode.Length) break;
 
-                    FindTokenClass(CurrentLexeme);
-                    l = r;
-                }
-                else if (CurrentChar == '\"') //if you read a string
-                {
-                    r++;
-                    if (r >= SourceCode.Length)
+                        CurrentChar = SourceCode[r];
+                        CurrentLexeme += CurrentChar;
+                    }
+                    else{ //Error For Comment not closed
+                        Errors.Error_List.Add("Error Line: " + Line + " ,Comment not closed: \" " + CurrentLexeme + " \" \n");
                         break;
+                    }
+
+                    FindTokenClass(CurrentLexeme);
+                    l = r ;
+                }
+
+                else if (CurrentChar == '\"') { // For strings
+                    r++;
+                    if (r >= SourceCode.Length) break;
+
                     CurrentChar = SourceCode[r];
                     while (r < SourceCode.Length && CurrentChar != '\"')
                     {
                         CurrentLexeme += CurrentChar;
                         r++;
-                        if (r >= SourceCode.Length)
-                            break;
+                        if (r >= SourceCode.Length) break;
+
                         CurrentChar = SourceCode[r];
                     }
                     FindTokenClass('\"' + CurrentLexeme + '\"');
                     l = r;
                 }
-                else if (CurrentChar >= '0' && CurrentChar <= '9')
-                {
-                    while (r < SourceCode.Length && CurrentChar >= '0' && CurrentChar <= '9')
-                    {
+
+                else if (isDigit(CurrentChar)){ // For Numbers
+                    while (r < SourceCode.Length && isDigit(CurrentChar) ) {
                         CurrentLexeme += CurrentChar;
                         r++;
-                        if (r >= SourceCode.Length)
-                            break;
+                        if (r >= SourceCode.Length) break;
+
                         CurrentChar = SourceCode[r];
                     }
-                    if (r < SourceCode.Length && CurrentChar == '.')
-                    {
+                    if (r < SourceCode.Length && CurrentChar == '.') {
+                        CurrentLexeme += CurrentChar;
+                        r++;
+                        CurrentChar = SourceCode[r];
+
+                        if (r >= SourceCode.Length || isWhiteSpace(CurrentChar) ) { // Error Decemal no Number "2."
+                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + "\", Number cannot end with a dot.\n");
+                            continue;
+                        }
+                        else if (CurrentChar == '.'){ //Error: Invalid number 
+                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + CurrentChar + "\", Extra decimal point.\n");
+                            continue;
+                        }
+                        if (!isDigit(CurrentChar)){
+                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + CurrentChar + "\", Expected digit after decimal point.\n");
+                            continue;
+                        }
+
+                        while (r < SourceCode.Length && isDigit(CurrentChar)){
                         CurrentLexeme += CurrentChar;
                         r++;
                         if (r >= SourceCode.Length)
                             break;
                         CurrentChar = SourceCode[r];
-                        if (CurrentChar == '.')
-                        {
-                            //Error: Invalid number
-                            Errors.Error_List.Add("Extra Decimal Point: " + CurrentLexeme);
-                            continue;
-                        }
-                        while (r < SourceCode.Length && CurrentChar >= '0' && CurrentChar <= '9')
-                        {
-                            CurrentLexeme += CurrentChar;
-                            r++;
-                            if (r >= SourceCode.Length)
-                                break;
-                            CurrentChar = SourceCode[r];
                         }
                     }
                     FindTokenClass(CurrentLexeme);
-                    l = r - 1;
+                    l = r ;
                 }
-                else if (Symbols.ContainsKey(CurrentChar.ToString()))
-                {
+
+                else if ( Symbols.ContainsKey( CurrentChar.ToString() ) ) { // For Symbols
                     FindTokenClass(CurrentChar.ToString());
                 }
-                else if (Operators.ContainsKey(CurrentChar.ToString())
-                    || CurrentChar == ':' || CurrentChar == '&' || CurrentChar == '|')
-                {
+
+                else if (Operators.ContainsKey(CurrentChar.ToString()) || CurrentChar == ':'
+                    || CurrentChar == '&' || CurrentChar == '|') { // For Operators
                     if (CurrentChar == ':')
                     {
                         if (r + 1 < SourceCode.Length && SourceCode[r + 1] == '=')
@@ -265,89 +253,94 @@ namespace JASON_Compiler
                         l = r;
                     }
                 }
-                else
-                {
-                    CurrentLexeme += CurrentChar;
-                    FindTokenClass(CurrentLexeme);
-                }
-            }
 
+                else
+                { // For Invalid Characters
+                    CurrentLexeme += CurrentChar;
+                    Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Character: " + CurrentLexeme);
+                }
+
+            }
             JASON_Compiler.TokenStream = Tokens;
+
         }
-        void FindTokenClass(string Lex)
-        {
+        bool isWhiteSpace(char CurrentChar){// Check if it is a whitespace
+            return CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\0' || CurrentChar == '\t';
+        }
+        bool isLetter(char CurrentChar){// Check if it is a letter
+            return (CurrentChar >= 'A' && CurrentChar <= 'Z') || (CurrentChar >= 'a' && CurrentChar <= 'z');
+        }
+        bool isDigit(char CurrentChar){// Check if it is a digit
+            return CurrentChar >= '0' && CurrentChar <= '9';
+        }
+        bool isOperator(char CurrentChar){// Check if it is an operator
+            return Operators.ContainsKey(CurrentChar.ToString());
+        }
+        bool isSymbol(char CurrentChar){// Check if it is a symbol
+            return Symbols.ContainsKey(CurrentChar.ToString());
+        }
+
+
+        void FindTokenClass(string Lex){
             //Token_Class TC;
             Token Tok = new Token();
             Tok.lex = Lex;
-            //Is it a reserved word?
-            if (isReservedWord(Lex))
-                Tok.token_type = ReservedWords[Lex.ToUpper()];
+            
+            if (IsReservedWord(Lex))//Is it a reserved word?
+                Tok.token_type = ReservedWords[Lex.ToLower()];
 
-            //Is it an identifier?
-            else if (isIdentifier(Lex))
+            else if (IsIdentifier(Lex))//Is it an identifier?
                 Tok.token_type = Token_Class.Identifiers;
 
-            //Is it a Constant?
-            else if (isConstant(Lex))
+            else if (IsConstant(Lex))//Is it a Constant?
                 Tok.token_type = Token_Class.Number;
-            else if (isString(Lex))
+
+            else if (IsString(Lex))//Is it a string?
                 Tok.token_type = Token_Class.String_DataType;
-            //Is it an operator?
-            else if (IsOperator(Lex))
+            
+            else if (IsOperator(Lex))//Is it an operator?
                 Tok.token_type = Operators[Lex];
-            else if (IsSymbol(Lex))
+
+            else if (IsSymbol(Lex))//Is it a symbol?
                 Tok.token_type = Symbols[Lex];
-            else if (IsComment(Lex))
+
+            else if (IsComment(Lex))//Is it a comment?
                 Tok.token_type = Token_Class.Comment_Statement;
-            else
+
+            else//Is it an undefined?
                 Tok.token_type = Token_Class.Unknown;
-            //Is it an undefined?
+ 
             Tokens.Add(Tok);
         }
 
-        
-        bool isString (string lex)
-        {
-            // Check if the lex is a string or not.
+        bool IsString (string lex){// Check if the lex is a string or not.
             Regex RS = new Regex(@"^\"".*\""$"); 
             return RS.IsMatch(lex);
         }
-        bool isIdentifier(string lex)
-        {
-            // Check if the lex is an identifier or not.
+        bool IsIdentifier(string lex){// Check if the lex is an identifier or not.
             Regex RId = new Regex(@"^[a-zA-Z][a-zA-Z0-9]*$");
             return RId.IsMatch(lex);
         }
-        bool isConstant(string lex)
-        {
+        bool IsConstant(string lex){// Check if the lex is a constant (Number) or not.
             // (\+|\-)? (E (\+|\-)?[0-9]+)?
-            // Check if the lex is a constant (Number) or not.
             Regex RC = new Regex(@"^[0-9]+(\.[0-9]+)?$");
             return RC.IsMatch(lex);
         }
-        bool IsOperator(string lex)
-        {
-            // Check if the lex is a constant (Number) or not.
-            //return RO.IsMatch(lex);
-            //Regex RO = new Regex(@"^\:\=|\=|\<|\>|<>|\+|\-|\*|\/|\&\&|\|\|$");
+        bool IsOperator(string lex){// Check if the lex is an operator or not.
             return Operators.ContainsKey(lex);
         }
-        bool IsSymbol(string lex)
-        {
-            // Check if the lex is a constant (Number) or not.
+        bool IsSymbol(string lex){// Check if the lex is a Symbol or not.
             Regex RSymbol = new Regex(@"^;|,|\(|\)|\{|\}$");
             return RSymbol.IsMatch(lex);
         }
-        bool IsComment(string lex)
-        {
-            // Check if the lex is a constant (Number) or not.
+        bool IsComment(string lex){// Check if the lex is a comment or not.
             Regex RComment = new Regex(@"/\*[\s\S]*?\*/");
             return RComment.IsMatch(lex);
         }
-        bool isReservedWord(string lex)
-        {
-            // Check if the lex is a reserved word or not.
+        bool IsReservedWord(string lex){// Check if the lex is a reserved word or not.
             return ReservedWords.ContainsKey(lex.ToLower());
         }
+
     }
+
 }
