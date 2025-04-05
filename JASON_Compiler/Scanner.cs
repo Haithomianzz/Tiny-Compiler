@@ -46,20 +46,20 @@ namespace JASON_Compiler
         public Scanner()
         {
 
-            ReservedWords.Add("INT", Token_Class.Int_DataType);
-            ReservedWords.Add("FLOAT", Token_Class.Float_DataType);
-            ReservedWords.Add("STRING", Token_Class.String_DataType);
-            ReservedWords.Add("READ", Token_Class.Read_Keyword);
-            ReservedWords.Add("WRITE", Token_Class.Write_Keyword);
-            ReservedWords.Add("REPEAT", Token_Class.Repeat_Keyword);
-            ReservedWords.Add("UNTIL", Token_Class.Until_Keyword);
-            ReservedWords.Add("IF", Token_Class.If_Keyword);
-            ReservedWords.Add("ELSEIF", Token_Class.Else_If_Keyword);
-            ReservedWords.Add("ELSE", Token_Class.Else_Keyword);
-            ReservedWords.Add("THEN", Token_Class.Then_Keyword);
-            ReservedWords.Add("RETURN", Token_Class.Return_Keyword);
-            ReservedWords.Add("MAIN", Token_Class.Main_Keyword);
-            ReservedWords.Add("END", Token_Class.End_Keyword);
+            ReservedWords.Add("int", Token_Class.Int_DataType);
+            ReservedWords.Add("float", Token_Class.Float_DataType);
+            ReservedWords.Add("string", Token_Class.String_DataType);
+            ReservedWords.Add("read", Token_Class.Read_Keyword);
+            ReservedWords.Add("write", Token_Class.Write_Keyword);
+            ReservedWords.Add("repeat", Token_Class.Repeat_Keyword);
+            ReservedWords.Add("until", Token_Class.Until_Keyword);
+            ReservedWords.Add("if", Token_Class.If_Keyword);
+            ReservedWords.Add("elseif", Token_Class.Else_If_Keyword);
+            ReservedWords.Add("else", Token_Class.Else_Keyword);
+            ReservedWords.Add("then", Token_Class.Then_Keyword);
+            ReservedWords.Add("return", Token_Class.Return_Keyword);
+            ReservedWords.Add("main", Token_Class.Main_Keyword);
+            ReservedWords.Add("end", Token_Class.End_Keyword);
 
             Operators.Add("+", Token_Class.Plus_Operator);
             Operators.Add("-", Token_Class.Minus_Operator);
@@ -347,7 +347,7 @@ namespace JASON_Compiler
         bool isReservedWord(string lex)
         {
             // Check if the lex is a reserved word or not.
-            return ReservedWords.ContainsKey(lex.ToUpper());
+            return ReservedWords.ContainsKey(lex.ToLower());
         }
     }
 }
