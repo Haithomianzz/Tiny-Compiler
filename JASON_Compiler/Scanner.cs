@@ -92,7 +92,6 @@ namespace JASON_Compiler
                 int r = l;
                 char CurrentChar = SourceCode[r];
                 string CurrentLexeme = "";
-
                 if (CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\0')
                     continue;
 
@@ -107,8 +106,15 @@ namespace JASON_Compiler
                             break;
                         CurrentChar = SourceCode[r];
                     }
+                    if (r < SourceCode.Length && !(CurrentChar == ' ' || CurrentChar == '\r' || CurrentChar == '\n' || CurrentChar == '\0'
+                        || CurrentChar == '\t'|| CurrentChar == ' '))
+                    {
+                        Errors.Error_List.Add("Invalid Character in Identifier: " + CurrentChar);
+                        //l = r; // to ignore the invalid identifier
+                        //continue;
+                    }
                     FindTokenClass(CurrentLexeme);
-                    l = r - 1;
+                    l = r;
                 }
                 else if ((CurrentChar == '/') && (r + 1 < SourceCode.Length && SourceCode[r + 1] == '*'))
                 {
@@ -127,14 +133,21 @@ namespace JASON_Compiler
                             CurrentChar = SourceCode[r];
                             CurrentLexeme += CurrentChar;
                         }
-                        if (r + 1 < SourceCode.Length)
-                        {
+                        if (r + 1 < SourceCode.Length) // "/* ahmed fahmy"
+                    {
                             r++;
                             if (r >= SourceCode.Length)
                                 break;
                             CurrentChar = SourceCode[r];
                             CurrentLexeme += CurrentChar;
                         }
+                        else
+                        {
+                            //Error: Comment not closed
+                            Errors.Error_List.Add("Comment not closed: \n" + CurrentLexeme);
+                            break;
+                        }
+
                     FindTokenClass(CurrentLexeme);
                     l = r;
                 }
@@ -172,6 +185,12 @@ namespace JASON_Compiler
                         if (r >= SourceCode.Length)
                             break;
                         CurrentChar = SourceCode[r];
+                        if (CurrentChar == '.')
+                        {
+                            //Error: Invalid number
+                            Errors.Error_List.Add("Extra Decimal Point: " + CurrentLexeme);
+                            continue;
+                        }
                         while (r < SourceCode.Length && CurrentChar >= '0' && CurrentChar <= '9')
                         {
                             CurrentLexeme += CurrentChar;
@@ -286,7 +305,7 @@ namespace JASON_Compiler
             Tokens.Add(Tok);
         }
 
-
+        
         bool isString (string lex)
         {
             // Check if the lex is a string or not.
@@ -322,7 +341,7 @@ namespace JASON_Compiler
         bool IsComment(string lex)
         {
             // Check if the lex is a constant (Number) or not.
-            Regex RComment = new Regex(@"^/\*.*\*/$");
+            Regex RComment = new Regex(@"/\*[\s\S]*?\*/");
             return RComment.IsMatch(lex);
         }
         bool isReservedWord(string lex)

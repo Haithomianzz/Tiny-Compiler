@@ -16,17 +16,19 @@ namespace JASON_Compiler
         {
             InitializeComponent();
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
+            dataGridView1.Rows.Clear();
             textBox2.Clear();
             //string Code=textBox1.Text.ToLower();
             string Code = textBox1.Text;
             JASON_Compiler.Start_Compiling(Code);
             PrintTokens();
-         //   PrintLexemes();
-
             PrintErrors();
+            JASON_Compiler.TokenStream.Clear();
+            Errors.Error_List.Clear();
+
+            //   PrintLexemes();
         }
         void PrintTokens()
         {
@@ -58,6 +60,9 @@ namespace JASON_Compiler
         {
             dataGridView1.Rows.Clear();
             JASON_Compiler.TokenStream.Clear();
+            JASON_Compiler.Jason_Scanner.Tokens.Clear();
+            Errors.Error_List.Clear();
+            textBox2.Clear();
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
