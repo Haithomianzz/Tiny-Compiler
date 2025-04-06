@@ -335,9 +335,8 @@ namespace JASON_Compiler
 
             }
 
-            // Validate parentheses after scanning
             if (!IsValidParentheses(SourceCode))
-            {
+            {// FOR Validating parentheses after scanning
                 Errors.Error_List.Add("Error Line: "+ Line + ", Unmatched parentheses in the source code.");
             }
             JASON_Compiler.TokenStream = Tokens;
@@ -365,9 +364,34 @@ namespace JASON_Compiler
             return Symbols.ContainsKey(CurrentChar.ToString());
         }
 
+        bool IsValidParentheses(string s)
+        {// FOR THE NUMBER OF PARENTHESIS
+            Stack<char> stack = new Stack<char>();
+            Dictionary<char, char> close = new Dictionary<char, char> { { '}', '{' }, { ')', '(' } };
+            foreach (char c in s)
+            {
+                if (close.ContainsKey(c))
+                {
+                    if (stack.Count > 0 && stack.Peek() == close[c])
+                    {
+                        stack.Pop();
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else if (close.ContainsValue(c))
+                {
+                    stack.Push(c);
+                }
+            }
+            return stack.Count == 0;
+        }
+
         void FindTokenClass(string Lex)
-        {
-            //Token_Class TC;
+        {//Token_Class TC;
+            
             Token Tok = new Token();
             Tok.lex = Lex;
 
@@ -433,30 +457,6 @@ namespace JASON_Compiler
             return ReservedWords.ContainsKey(lex.ToLower());
         }
 
-        bool IsValidParentheses(string s)
-        {
-            Stack<char> stack = new Stack<char>();
-            Dictionary<char, char> close = new Dictionary<char, char> { { '}', '{' },  { ')', '(' } };
-            foreach (char c in s)
-            {
-                if (close.ContainsKey(c))
-                {
-                    if (stack.Count > 0 && stack.Peek() == close[c])
-                    {
-                        stack.Pop();
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else if (close.ContainsValue(c))
-                {
-                    stack.Push(c);
-                }
-            }
-            return stack.Count == 0;
-        }
     }
 
 }

@@ -40,7 +40,8 @@ namespace JASON_Compiler
 
         void PrintErrors()
         {
-            for(int i=0; i<Errors.Error_List.Count; i++)
+            textBox2.ForeColor = Color.Red;
+            for (int i=0; i<Errors.Error_List.Count; i++)
             {
                 textBox2.Text += Errors.Error_List[i];
                 textBox2.Text += "\r\n";
@@ -66,6 +67,11 @@ namespace JASON_Compiler
         }
 
         private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
         {
 
         }
