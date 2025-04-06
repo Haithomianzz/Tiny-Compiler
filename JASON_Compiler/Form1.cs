@@ -75,6 +75,28 @@ namespace JASON_Compiler
         {
 
         }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dataGridView1_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            // Get the row number (add 1 for 1-based indexing)
+            string rowIndex = (e.RowIndex + 1).ToString();
+
+            // Determine the bounds of the row header cell
+            Rectangle headerBounds = new Rectangle(e.RowBounds.Left, e.RowBounds.Top, dataGridView1.RowHeadersWidth, e.RowBounds.Height);
+
+            // Use the same font and alignment as the header cell
+            TextRenderer.DrawText(e.Graphics, rowIndex, this.dataGridView1.Font, headerBounds, dataGridView1.RowHeadersDefaultCellStyle.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Right);
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
         /*  void PrintLexemes()
 {
 for (int i = 0; i < JASON_Compiler.Lexemes.Count; i++)
