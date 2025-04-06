@@ -21,9 +21,8 @@ public enum Token_Class
 
     , Semicolon_Symbol,Comma_Symbol,Open_Parenthesis,Close_Parenthesis,Open_Brace,Close_Brace
 
-    , Declaration_Statement, Function_Call, Term, Equation, Expression, FunctionName
-    , Parameter, Function_Declaration, Function_Body, Function_Statement, Program
-
+    //, Declaration_Statement, Function_Call, Term, Equation, Expression, FunctionName
+    //, Parameter, Function_Declaration, Function_Body, Function_Statement, Program
 }
 namespace JASON_Compiler
 {
@@ -64,7 +63,6 @@ namespace JASON_Compiler
             Operators.Add("*", Token_Class.Multiply_Operator);
             Operators.Add("/", Token_Class.Divide_Operator);
 
-            //Operators.Add(":", Token_Class.Assignment_Operator);
             Operators.Add(":=", Token_Class.Assignment_Operator);
 
             Operators.Add("<", Token_Class.Less_Than_Operator);
@@ -164,7 +162,7 @@ namespace JASON_Compiler
                     }
                     if (CurrentChar != '\"')
                     { //Error For String not closed
-                        Errors.Error_List.Add("Error Line: " + Line + " ,String not closed: \" " + CurrentLexeme + " \" \n");
+                        Errors.Error_List.Add("Error Line: " + Line + ", String not closed: \" " + CurrentLexeme + " \" \n");
                         break;
                     }
                     FindTokenClass('\"' + CurrentLexeme + '\"');
@@ -268,19 +266,24 @@ namespace JASON_Compiler
                         }
                         if (!isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
                         {
+                            int c = 0;
                             while (r < SourceCode.Length && !isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
                             {
                                 CurrentLexeme += CurrentChar;
                                 r++;
+                                c++;
                                 if (r >= SourceCode.Length) break;
                                 CurrentChar = SourceCode[r];
                             }
-                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + "\"\n");
-                            l = r - 1;
-                            continue;
+                            if (c != 0 ) {
+                                Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + "\"\n");
+                                l = r - 1;
+                                continue;
+                            }
+                          
                         }
-                        if (dotCount > 1)
-                            continue;
+                        if (dotCount > 1) continue;
+                            
                     }
                     FindTokenClass(CurrentLexeme);
                     l = r - 1;
@@ -366,7 +369,7 @@ namespace JASON_Compiler
                         else
                         {
                             CurrentLexeme += CurrentChar;
-                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentLexeme + "\"\n");
+                            Errors.Error_List.Add("Error Line: " + Line + ", Invalid Operator: \"" + CurrentLexeme + "\"\n");
                             continue;
                         }
                     }
@@ -444,7 +447,13 @@ namespace JASON_Compiler
             Token Tok = new Token();
             Tok.lex = Lex;
 
-            if (IsReservedWord(Lex))//Is it a reserved word?
+            if (IsComment(Lex))//Is it a comment?
+                Tok.token_type = Token_Class.Comment_Statement;
+
+            else if (IsString(Lex))//Is it a string?
+                Tok.token_type = Token_Class.String_DataType;
+
+            else if (IsReservedWord(Lex))//Is it a reserved word?
                 Tok.token_type = ReservedWords[Lex.ToLower()];
 
             else if (IsIdentifier(Lex))//Is it an identifier?
@@ -453,16 +462,11 @@ namespace JASON_Compiler
             else if (IsConstant(Lex))//Is it a Constant?
                 Tok.token_type = Token_Class.Number;
 
-            else if (IsString(Lex))//Is it a string?
-                Tok.token_type = Token_Class.String_DataType;
-
             else if (IsOperator(Lex))//Is it an operator?
                 Tok.token_type = Operators[Lex];
+
             else if (IsSymbol(Lex))//Is it a symbol?
                 Tok.token_type = Symbols[Lex];
-            else if (IsComment(Lex))//Is it a comment?
-                Tok.token_type = Token_Class.Comment_Statement;
-
 
             else//Is it an undefined?
                 Tok.token_type = Token_Class.Unknown;
@@ -470,10 +474,19 @@ namespace JASON_Compiler
             Tokens.Add(Tok);
         }
 
+        bool IsComment(string lex)
+        {// Check if the lex is a comment or not.
+            Regex RComment = new Regex(@"/\*[\s\S]*?\*/");
+            return RComment.IsMatch(lex);
+        }
         bool IsString(string lex)
         {// Check if the lex is a string or not.
             Regex RS = new Regex(@"^\"".*\""$");
             return RS.IsMatch(lex);
+        }
+        bool IsReservedWord(string lex)
+        {// Check if the lex is a reserved word or not.
+            return ReservedWords.ContainsKey(lex.ToLower());
         }
         bool IsIdentifier(string lex)
         {// Check if the lex is an identifier or not.
@@ -481,8 +494,7 @@ namespace JASON_Compiler
             return RId.IsMatch(lex);
         }
         bool IsConstant(string lex)
-        {// Check if the lex is a constant (Number) or not.
-         // (\+|\-)? (E (\+|\-)?[0-9]+)?
+        {// Check if the lex is a constant (Number) or not.       // (\+|\-)? (E (\+|\-)?[0-9]+)?
             Regex RC = new Regex(@"^[0-9]+(\.[0-9]+)?$");
             return RC.IsMatch(lex);
         }
@@ -494,15 +506,6 @@ namespace JASON_Compiler
         {// Check if the lex is a Symbol or not.
             Regex RSymbol = new Regex(@"^(;|,|\(|\)|\{|\})$");
             return RSymbol.IsMatch(lex);
-        }
-        bool IsComment(string lex)
-        {// Check if the lex is a comment or not.
-            Regex RComment = new Regex(@"/\*[\s\S]*?\*/");
-            return RComment.IsMatch(lex);
-        }
-        bool IsReservedWord(string lex)
-        {// Check if the lex is a reserved word or not.
-            return ReservedWords.ContainsKey(lex.ToLower());
         }
 
     }
