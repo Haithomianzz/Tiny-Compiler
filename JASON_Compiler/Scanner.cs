@@ -174,13 +174,13 @@ namespace JASON_Compiler
                 else if (isDigit(CurrentChar))
                 { // For Numbers
                     int dotCount = 0;
-                    while (r < SourceCode.Length && isDigit(CurrentChar))
+                    while (r < SourceCode.Length && isDigit(CurrentChar)) //2342342
                     {
                         CurrentLexeme += CurrentChar;
                         r++;
                         if (r >= SourceCode.Length) break;
                         CurrentChar = SourceCode[r];
-                    }//2342ahmed
+                    } // 23423ahmed
                     if (!isWhiteSpace(CurrentChar) && !isDigit(CurrentChar) && !isOperator(CurrentChar) && !isSymbol(CurrentChar) && CurrentChar != '.')
                     { // Error For Invalid Characters
                         while (r < SourceCode.Length && !isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
@@ -244,9 +244,6 @@ namespace JASON_Compiler
                         {
                             if (CurrentChar == '.')
                             {
-                                dotCount++;
-                                if (dotCount > 1)
-                                {
                                     while (r < SourceCode.Length && !isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
                                     {
                                         CurrentLexeme += CurrentChar;
@@ -258,16 +255,15 @@ namespace JASON_Compiler
                                     l = r;
                                     break;
 
+
                                 }
-                            }
                             CurrentLexeme += CurrentChar;
                             r++;
                             if (r >= SourceCode.Length)
                                 break;
                             CurrentChar = SourceCode[r];
                         }
-                        if (!isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
-                        {
+                        if (!isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar) && r < SourceCode.Length){
                             while (r < SourceCode.Length && !isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
                             {
                                 CurrentLexeme += CurrentChar;
@@ -287,13 +283,12 @@ namespace JASON_Compiler
 
                 }
 
-                else if (Symbols.ContainsKey(CurrentChar.ToString()))
+                else if (isSymbol(CurrentChar))
                 { // For Symbols
                     FindTokenClass(CurrentChar.ToString());
                 }
 
-                else if (Operators.ContainsKey(CurrentChar.ToString()) || CurrentChar == ':'
-                    || CurrentChar == '&' || CurrentChar == '|')
+                else if (isOperator(CurrentChar) || CurrentChar == ':' || CurrentChar == '&' || CurrentChar == '|')
                 { // For Operators
                     if (CurrentChar == ':')
                     {
@@ -308,8 +303,7 @@ namespace JASON_Compiler
                         }
                         else
                         {
-                            CurrentLexeme += CurrentChar;
-                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentLexeme + "\"\n");
+                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentChar + "\"\n");
                             continue;
 
                         }
@@ -346,8 +340,7 @@ namespace JASON_Compiler
                         }
                         else
                         {
-                            CurrentLexeme += CurrentChar;
-                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentLexeme + "\"\n");
+                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentChar + "\"\n");
                             continue;
 
                         }
@@ -365,24 +358,20 @@ namespace JASON_Compiler
                         }
                         else
                         {
-                            CurrentLexeme += CurrentChar;
-                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentLexeme + "\"\n");
+                            Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentChar + "\"\n");
                             continue;
                         }
                     }
                     else
                         CurrentLexeme += CurrentChar;
+
                     FindTokenClass(CurrentLexeme);
                     l = r;
                 }
 
                 else
-                { // For Invalid Characters
-                    CurrentLexeme += CurrentChar;
-                    Errors.Error_List.Add("Error Line: " + Line + ", Invalid Character: " + CurrentLexeme);
+                    Errors.Error_List.Add("Error Line: " + Line + ", Invalid Character: " + CurrentChar);
                 }
-
-            }
 
             if (!IsValidParentheses(SourceCode))
             {// FOR Validating parentheses after scanning
