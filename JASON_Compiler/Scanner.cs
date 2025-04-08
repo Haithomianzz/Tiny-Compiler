@@ -11,7 +11,7 @@ public enum Token_Class
 
     , Int_DataType, Float_DataType, String_DataType
     , Read_Keyword, Write_Keyword, Repeat_Keyword, Until_Keyword
-    , If_Keyword, Else_If_Keyword, Else_Keyword, Then_Keyword    , Return_Keyword, Main_Keyword, End_Keyword, Endl_Keyword
+    , If_Keyword, Else_If_Keyword, Else_Keyword, Then_Keyword, Return_Keyword, Main_Keyword, End_Keyword, Endl_Keyword
 
     , Arithmatic_Operator, Assignment_Operator, Condition_Operator, Boolean_Operator
 
@@ -20,7 +20,6 @@ public enum Token_Class
     , And_Operator,Or_Operator
 
     , Semicolon_Symbol,Comma_Symbol,Open_Parenthesis,Close_Parenthesis,Open_Brace,Close_Brace
-
     //, Declaration_Statement, Function_Call, Term, Equation, Expression, FunctionName
     //, Parameter, Function_Declaration, Function_Body, Function_Statement, Program
 }
@@ -103,8 +102,8 @@ namespace JASON_Compiler
                     {
                         CurrentLexeme += CurrentChar;
                         r++;
-                        if (r >= SourceCode.Length)
-                            break;
+                        if (r >= SourceCode.Length) break;
+
                         CurrentChar = SourceCode[r];
                     }
                     if (r < SourceCode.Length && !(isWhiteSpace(CurrentChar) || isOperator(CurrentChar) || isSymbol(CurrentChar) || CurrentChar == ':'
@@ -141,7 +140,6 @@ namespace JASON_Compiler
                         Errors.Error_List.Add("Error Line: " + Line + " ,Comment not closed: \" " + CurrentLexeme + " \" \n");
                         break;
                     }
-
                     FindTokenClass(CurrentLexeme);
                     l = r;
                 }
@@ -172,13 +170,14 @@ namespace JASON_Compiler
                 else if (isDigit(CurrentChar))
                 { // For Numbers
                     int dotCount = 0;
-                    while (r < SourceCode.Length && isDigit(CurrentChar)) //2342342
+                    while (r < SourceCode.Length && isDigit(CurrentChar))
                     {
                         CurrentLexeme += CurrentChar;
                         r++;
                         if (r >= SourceCode.Length) break;
+
                         CurrentChar = SourceCode[r];
-                    } // 23423ahmed
+                    } 
                     if (!isWhiteSpace(CurrentChar) && !isDigit(CurrentChar) && !isOperator(CurrentChar) && !isSymbol(CurrentChar) && CurrentChar != '.')
                     { // Error For Invalid Characters
                         while (r < SourceCode.Length && !isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
@@ -186,6 +185,7 @@ namespace JASON_Compiler
                             CurrentLexeme += CurrentChar;
                             r++;
                             if (r >= SourceCode.Length) break;
+
                             CurrentChar = SourceCode[r];
                         }
                         Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: " + CurrentLexeme);
@@ -217,6 +217,7 @@ namespace JASON_Compiler
                                 CurrentLexeme += CurrentChar;
                                 r++;
                                 if (r >= SourceCode.Length) break;
+
                                 CurrentChar = SourceCode[r];
                             }
                             Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + CurrentChar + "\", Extra decimal point.\n");
@@ -230,6 +231,7 @@ namespace JASON_Compiler
                                 CurrentLexeme += CurrentChar;
                                 r++;
                                 if (r >= SourceCode.Length) break;
+
                                 CurrentChar = SourceCode[r];
                             }
                             Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + "\", Expected digit after decimal point.\n");
@@ -237,28 +239,26 @@ namespace JASON_Compiler
                             l = r - 1;
                             continue;
                         }
-
                         while (r < SourceCode.Length && (isDigit(CurrentChar) || CurrentChar == '.'))
                         {
                             if (CurrentChar == '.')
                             {
-                                    while (r < SourceCode.Length && !isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
-                                    {
-                                        CurrentLexeme += CurrentChar;
-                                        r++;
-                                        if (r >= SourceCode.Length) break;
-                                        CurrentChar = SourceCode[r];
-                                    }
-                                    Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + "\", Multiple decimal points.\n");
-                                    l = r;
-                                    break;
+                                while (r < SourceCode.Length && !isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar))
+                                {
+                                    CurrentLexeme += CurrentChar;
+                                    r++;
+                                    if (r >= SourceCode.Length) break;
 
-
+                                    CurrentChar = SourceCode[r];
                                 }
+                                Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + "\", Multiple decimal points.\n");
+                                l = r;
+                                break;
+                            }
                             CurrentLexeme += CurrentChar;
                             r++;
-                            if (r >= SourceCode.Length)
-                                break;
+                            if (r >= SourceCode.Length) break;
+                                
                             CurrentChar = SourceCode[r];
                         }
                         if (!isWhiteSpace(CurrentChar) && !isSymbol(CurrentChar) && !isOperator(CurrentChar) && r < SourceCode.Length){
@@ -267,23 +267,16 @@ namespace JASON_Compiler
                                 CurrentLexeme += CurrentChar;
                                 r++;
                                 if (r >= SourceCode.Length) break;
+
                                 CurrentChar = SourceCode[r];
                             }
                             Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Number: \"" + CurrentLexeme + "\"\n");
                             l = r - 1;
                             continue;
                         }
-                        if (dotCount > 1)
-                            continue;
                     }
                     FindTokenClass(CurrentLexeme);
                     l = r - 1;
-
-                }
-
-                else if (isSymbol(CurrentChar))
-                { // For Symbols
-                    FindTokenClass(CurrentChar.ToString());
                 }
 
                 else if (isOperator(CurrentChar) || CurrentChar == ':' || CurrentChar == '&' || CurrentChar == '|')
@@ -294,8 +287,8 @@ namespace JASON_Compiler
                         {
                             CurrentLexeme += CurrentChar;
                             r++;
-                            if (r >= SourceCode.Length)
-                                break;
+                            if (r >= SourceCode.Length) break;
+                                
                             CurrentChar = SourceCode[r];
                             CurrentLexeme += CurrentChar;
                         }
@@ -312,8 +305,8 @@ namespace JASON_Compiler
                         {
                             CurrentLexeme += CurrentChar;
                             r++;
-                            if (r >= SourceCode.Length)
-                                break;
+                            if (r >= SourceCode.Length) break;
+                                
                             CurrentChar = SourceCode[r];
                             CurrentLexeme += CurrentChar;
                         }
@@ -331,8 +324,8 @@ namespace JASON_Compiler
                         {
                             CurrentLexeme += CurrentChar;
                             r++;
-                            if (r >= SourceCode.Length)
-                                break;
+                            if (r >= SourceCode.Length) break;
+                                
                             CurrentChar = SourceCode[r];
                             CurrentLexeme += CurrentChar;
                         }
@@ -340,7 +333,6 @@ namespace JASON_Compiler
                         {
                             Errors.Error_List.Add("Error Line: " + Line + " ,Invalid Operator: \"" + CurrentChar + "\"\n");
                             continue;
-
                         }
                     }
                     else if (CurrentChar == '|')
@@ -349,8 +341,8 @@ namespace JASON_Compiler
                         {
                             CurrentLexeme += CurrentChar;
                             r++;
-                            if (r >= SourceCode.Length)
-                                break;
+                            if (r >= SourceCode.Length) break;
+                                
                             CurrentChar = SourceCode[r];
                             CurrentLexeme += CurrentChar;
                         }
@@ -367,14 +359,15 @@ namespace JASON_Compiler
                     l = r;
                 }
 
+                else if (isSymbol(CurrentChar))// For Symbols
+                    FindTokenClass(CurrentChar.ToString());
+
                 else
                     Errors.Error_List.Add("Error Line: " + Line + ", Invalid Character: " + CurrentChar);
-                }
-
-            if (!IsValidParentheses(SourceCode))
-            {// FOR Validating parentheses after scanning
-                Errors.Error_List.Add("Error Line: " + Line + ", Unmatched parentheses in the source code.");
             }
+            if (!IsValidParentheses(SourceCode))// FOR Validating parentheses after scanning
+                Errors.Error_List.Add("Error Line: " + Line + ", Unmatched parentheses in the source code.");
+
             JASON_Compiler.TokenStream = Tokens;
 
         }
@@ -409,18 +402,12 @@ namespace JASON_Compiler
                 if (close.ContainsKey(c))
                 {
                     if (stack.Count > 0 && stack.Peek() == close[c])
-                    {
                         stack.Pop();
-                    }
                     else
-                    {
                         return false;
-                    }
                 }
                 else if (close.ContainsValue(c))
-                {
                     stack.Push(c);
-                }
             }
             return stack.Count == 0;
         }
@@ -430,8 +417,13 @@ namespace JASON_Compiler
             
             Token Tok = new Token();
             Tok.lex = Lex;
+            if (IsComment(Lex))//Is it a comment?
+                Tok.token_type = Token_Class.Comment_Statement;
 
-            if (IsReservedWord(Lex))//Is it a reserved word?
+            else if (IsString(Lex))//Is it a string?
+                Tok.token_type = Token_Class.String_DataType;
+
+            else if (IsReservedWord(Lex))//Is it a reserved word?
                 Tok.token_type = ReservedWords[Lex.ToLower()];
 
             else if (IsIdentifier(Lex))//Is it an identifier?
@@ -440,16 +432,11 @@ namespace JASON_Compiler
             else if (IsConstant(Lex))//Is it a Constant?
                 Tok.token_type = Token_Class.Number;
 
-            else if (IsString(Lex))//Is it a string?
-                Tok.token_type = Token_Class.String_DataType;
-
             else if (IsOperator(Lex))//Is it an operator?
                 Tok.token_type = Operators[Lex];
+
             else if (IsSymbol(Lex))//Is it a symbol?
                 Tok.token_type = Symbols[Lex];
-            else if (IsComment(Lex))//Is it a comment?
-                Tok.token_type = Token_Class.Comment_Statement;
-
 
             else//Is it an undefined?
                 Tok.token_type = Token_Class.Unknown;
@@ -457,10 +444,19 @@ namespace JASON_Compiler
             Tokens.Add(Tok);
         }
 
+        bool IsComment(string lex)
+        {// Check if the lex is a comment or not.
+            Regex RComment = new Regex(@"/\*[\s\S]*?\*/");
+            return RComment.IsMatch(lex);
+        }
         bool IsString(string lex)
         {// Check if the lex is a string or not.
             Regex RS = new Regex(@"^\"".*\""$");
             return RS.IsMatch(lex);
+        } 
+        bool IsReservedWord(string lex)
+        {// Check if the lex is a reserved word or not.
+            return ReservedWords.ContainsKey(lex.ToLower());
         }
         bool IsIdentifier(string lex)
         {// Check if the lex is an identifier or not.
@@ -469,7 +465,6 @@ namespace JASON_Compiler
         }
         bool IsConstant(string lex)
         {// Check if the lex is a constant (Number) or not.
-         // (\+|\-)? (E (\+|\-)?[0-9]+)?
             Regex RC = new Regex(@"^[0-9]+(\.[0-9]+)?$");
             return RC.IsMatch(lex);
         }
@@ -481,15 +476,6 @@ namespace JASON_Compiler
         {// Check if the lex is a Symbol or not.
             Regex RSymbol = new Regex(@"^(;|,|\(|\)|\{|\})$");
             return RSymbol.IsMatch(lex);
-        }
-        bool IsComment(string lex)
-        {// Check if the lex is a comment or not.
-            Regex RComment = new Regex(@"/\*[\s\S]*?\*/");
-            return RComment.IsMatch(lex);
-        }
-        bool IsReservedWord(string lex)
-        {// Check if the lex is a reserved word or not.
-            return ReservedWords.ContainsKey(lex.ToLower());
         }
 
     }
