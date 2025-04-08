@@ -21,9 +21,8 @@ public enum Token_Class
 
     , Semicolon_Symbol,Comma_Symbol,Open_Parenthesis,Close_Parenthesis,Open_Brace,Close_Brace
 
-    , Declaration_Statement, Function_Call, Term, Equation, Expression, FunctionName
-    , Parameter, Function_Declaration, Function_Body, Function_Statement, Program
-
+    //, Declaration_Statement, Function_Call, Term, Equation, Expression, FunctionName
+    //, Parameter, Function_Declaration, Function_Body, Function_Statement, Program
 }
 namespace JASON_Compiler
 {
@@ -64,7 +63,6 @@ namespace JASON_Compiler
             Operators.Add("*", Token_Class.Multiply_Operator);
             Operators.Add("/", Token_Class.Divide_Operator);
 
-            //Operators.Add(":", Token_Class.Assignment_Operator);
             Operators.Add(":=", Token_Class.Assignment_Operator);
 
             Operators.Add("<", Token_Class.Less_Than_Operator);
@@ -164,7 +162,7 @@ namespace JASON_Compiler
                     }
                     if (CurrentChar != '\"')
                     { //Error For String not closed
-                        Errors.Error_List.Add("Error Line: " + Line + " ,String not closed: \" " + CurrentLexeme + " \" \n");
+                        Errors.Error_List.Add("Error Line: " + Line + ", String not closed: \" " + CurrentLexeme + " \" \n");
                         break;
                     }
                     FindTokenClass('\"' + CurrentLexeme + '\"');
